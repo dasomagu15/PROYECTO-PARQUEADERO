@@ -44,12 +44,16 @@ public class Parqueadero {
         imprimir("");
         imprimir("===== PARQUEADERO =====");
         imprimir("1. Registrar entrada");
+        imprimir("2. Registrar salida");
         imprimir("5. Salir");
     }
     static void ejecutarOpcion(int opcion) {
         switch (opcion) {
             case 1:
                 registrarEntrada();
+                break;
+            case 2:
+                registrarSalida();
                 break;
             case OPCION_SALIR:
                 imprimir("Programa finalizado.");
@@ -74,6 +78,41 @@ public class Parqueadero {
         celdasLibres--;
         imprimir(tipo + " registrado en la celda " + (celda + 1) + ".");
     }
+    static void registrarSalida() {
+        if (celdasOcupadas == 0) {
+            imprimir("No hay vehículos en el parqueadero.");
+            return;
+        }
+
+        int celda = leerCelda();
+        if (tipoVehiculo[celda] == null) {
+            imprimir("La celda " + (celda + 1) + " está libre. No hay un vehículo para liquidar.");
+            return;
+        }
+
+        String tipo = tipoVehiculo[celda];
+        LocalDateTime ingreso = fechaIngreso[celda];
+        LocalDateTime salida = leerFechaHora("Fecha y hora de salida (yyyy-MM-dd HH:mm): ");
+        while (salida.isBefore(ingreso)) {
+            imprimir("La salida no puede ser anterior al ingreso (" + ingreso.format(FORMATO_FECHA_HORA) + ").");
+            salida = leerFechaHora("Fecha y hora de salida (yyyy-MM-dd HH:mm): ");
+        }
+
+        long valor = liquidar(celda, salida);
+        if (tipo.equals(CARRO)) {
+            recaudoCarros += valor;
+        } else {
+            recaudoMotos += valor;
+        }
+
+        tipoVehiculo[celda] = null;
+        fechaIngreso[celda] = null;
+        celdasOcupadas--;
+        celdasLibres++;
+    }
+    static long liquidar(int celda, LocalDateTime salida) {
+        return 0;
+    }
     static int celdaDisponible() {
         for (int i = 0; i < CAPACIDAD_TOTAL; i++) {
             if (tipoVehiculo[i] == null) {
@@ -94,6 +133,9 @@ public class Parqueadero {
             }
             imprimir("Dato inválido. Ingrese un número entre " + minimo + " y " + maximo + ".");
         }
+    }
+    static int leerCelda() {
+        return leerOpcion("Número de celda (1-" + CAPACIDAD_TOTAL + "): ", 1, CAPACIDAD_TOTAL) - 1;
     }
     static String leerTipoVehiculo() {
         int opcion = leerOpcion("Tipo de vehículo (1. Carro, 2. Moto): ", 1, 2);
