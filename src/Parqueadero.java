@@ -111,7 +111,60 @@ public class Parqueadero {
         celdasLibres++;
     }
     static long liquidar(int celda, LocalDateTime salida) {
-        return 0;
+        String tipo = tipoVehiculo[celda];
+        LocalDateTime ingreso = fechaIngreso[celda];
+
+        long diasACobrar = contarDiasCompletos(ingreso, salida);
+        LocalDateTime cursor = ingreso.plusDays(diasACobrar);
+        long horasACobrar = calcularHorasRestantes(cursor, salida);
+        if (horasACobrar >= UMBRAL_HORAS_DIA) {
+            diasACobrar++;
+            horasACobrar = 0;
+        }
+
+        long tarifaDia = obtenerTarifaDia(tipo);
+        long tarifaHora = obtenerTarifaHora(tipo);
+        long total = diasACobrar * tarifaDia + horasACobrar * tarifaHora;
+
+        imprimirFactura(celda, tipo, ingreso, salida, diasACobrar, tarifaDia, horasACobrar, tarifaHora, total);
+        return total;
+    }
+    static long contarDiasCompletos(LocalDateTime ingreso, LocalDateTime salida) {
+        return ChronoUnit.DAYS.between(ingreso, salida);
+    }
+    static long calcularHorasRestantes(LocalDateTime cursor, LocalDateTime salida) {
+        long minutosRestantes = Duration.between(cursor, salida).toMinutes();
+        return (minutosRestantes + 59) / 60;
+    }
+    static long obtenerTarifaDia(String tipo) {
+        return tipo.equals(CARRO) ? TARIFA_DIA_CARRO : TARIFA_DIA_MOTO;
+    }
+
+    static long obtenerTarifaHora(String tipo) {
+        return tipo.equals(CARRO) ? TARIFA_HORA_CARRO : TARIFA_HORA_MOTO;
+    }
+    static void imprimirFactura(int celda, String tipo, LocalDateTime ingreso, LocalDateTime salida,
+                                long dias, long tarifaDia, long horas, long tarifaHora, long total) {
+        imprimir("");
+        imprimir("========== FACTURA ==========");
+        imprimir("Celda liberada : " + (celda + 1));
+        imprimir("Vehículo       : " + tipo);
+        imprimir("Ingreso        : " + ingreso.format(FORMATO_FECHA_HORA));
+        imprimir("Salida         : " + salida.format(FORMATO_FECHA_HORA));
+        if (dias > 0) {
+            imprimir("Días           : " + dias + " x " + formatoMoneda(tarifaDia)
+                    + " = " + formatoMoneda(dias * tarifaDia));
+        }
+        if (horas > 0) {
+            imprimir("Horas          : " + horas + " x " + formatoMoneda(tarifaHora)
+                    + " = " + formatoMoneda(horas * tarifaHora));
+        }
+        imprimir("TOTAL A PAGAR  : " + formatoMoneda(total));
+        imprimir("=============================");
+    }
+
+    static String formatoMoneda(long valor) {
+        return "$" + String.format("%,d", valor);
     }
     static int celdaDisponible() {
         for (int i = 0; i < CAPACIDAD_TOTAL; i++) {
