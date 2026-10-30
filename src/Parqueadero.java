@@ -32,7 +32,58 @@ public class Parqueadero {
 
     public static void main(String[] args) {
         inicializarArreglos();
-        System.out.println("Sistema de gestión de parqueadero");
+        int opcion;
+        do {
+            mostrarMenu();
+            System.out.print("Seleccione una opción: ");
+            opcion = Integer.parseInt(SCANNER.nextLine().trim());
+            ejecutarOpcion(opcion);
+        } while (opcion != OPCION_SALIR);
+        SCANNER.close();
+    }
+    static void mostrarMenu() {
+        imprimir("");
+        imprimir("===== PARQUEADERO =====");
+        imprimir("1. Registrar entrada");
+        imprimir("5. Salir");
+    }
+    static void ejecutarOpcion(int opcion) {
+        switch (opcion) {
+            case 1:
+                registrarEntrada();
+                break;
+            case OPCION_SALIR:
+                imprimir("Programa finalizado.");
+                break;
+            default:
+                imprimir("Opción no disponible.");
+        }
+    }
+    static void registrarEntrada() {
+        int celda = -1;
+        for (int i = 0; i < CAPACIDAD_TOTAL && celda == -1; i++) {
+            if (tipoVehiculo[i] == null) {
+                celda = i;
+            }
+        }
+        if (celda == -1) {
+            imprimir("El parqueadero está lleno. No es posible registrar el ingreso.");
+            return;
+        }
+
+        System.out.print("Tipo de vehículo (1. Carro, 2. Moto): ");
+        String tipo = SCANNER.nextLine().trim().equals("1") ? CARRO : MOTO;
+        System.out.print("Fecha y hora de ingreso (yyyy-MM-dd HH:mm): ");
+        LocalDateTime ingreso = LocalDateTime.parse(SCANNER.nextLine().trim(), FORMATO_FECHA_HORA);
+
+        tipoVehiculo[celda] = tipo;
+        fechaIngreso[celda] = ingreso;
+        celdasOcupadas++;
+        celdasLibres--;
+        imprimir(tipo + " registrado en la celda " + (celda + 1) + ".");
+    }
+    static void imprimir(String mensaje) {
+        System.out.println(mensaje);
     }
     static void inicializarArreglos() {
         for (int i = 0; i < CAPACIDAD_TOTAL; i++) {
