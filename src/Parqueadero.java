@@ -60,12 +60,7 @@ public class Parqueadero {
         }
     }
     static void registrarEntrada() {
-        int celda = -1;
-        for (int i = 0; i < CAPACIDAD_TOTAL && celda == -1; i++) {
-            if (tipoVehiculo[i] == null) {
-                celda = i;
-            }
-        }
+        int celda = celdaDisponible();
         if (celda == -1) {
             imprimir("El parqueadero está lleno. No es posible registrar el ingreso.");
             return;
@@ -81,6 +76,14 @@ public class Parqueadero {
         celdasOcupadas++;
         celdasLibres--;
         imprimir(tipo + " registrado en la celda " + (celda + 1) + ".");
+    }
+    static int celdaDisponible() {
+        for (int i = 0; i < CAPACIDAD_TOTAL; i++) {
+            if (tipoVehiculo[i] == null) {
+                return i;
+            }
+        }
+        return -1;
     }
     static void imprimir(String mensaje) {
         System.out.println(mensaje);
