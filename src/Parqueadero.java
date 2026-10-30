@@ -45,8 +45,11 @@ public class Parqueadero {
         imprimir("===== PARQUEADERO =====");
         imprimir("1. Registrar entrada");
         imprimir("2. Registrar salida");
+        imprimir("3. Reporte de ocupación");
+        imprimir("4. Reporte financiero");
         imprimir("5. Salir");
     }
+
     static void ejecutarOpcion(int opcion) {
         switch (opcion) {
             case 1:
@@ -54,6 +57,12 @@ public class Parqueadero {
                 break;
             case 2:
                 registrarSalida();
+                break;
+            case 3:
+                reporteOcupacion();
+                break;
+            case 4:
+                reporteFinanciero();
                 break;
             case OPCION_SALIR:
                 imprimir("Programa finalizado.");
@@ -136,6 +145,7 @@ public class Parqueadero {
         long minutosRestantes = Duration.between(cursor, salida).toMinutes();
         return (minutosRestantes + 59) / 60;
     }
+
     static long obtenerTarifaDia(String tipo) {
         return tipo.equals(CARRO) ? TARIFA_DIA_CARRO : TARIFA_DIA_MOTO;
     }
@@ -143,6 +153,7 @@ public class Parqueadero {
     static long obtenerTarifaHora(String tipo) {
         return tipo.equals(CARRO) ? TARIFA_HORA_CARRO : TARIFA_HORA_MOTO;
     }
+
     static void imprimirFactura(int celda, String tipo, LocalDateTime ingreso, LocalDateTime salida,
                                 long dias, long tarifaDia, long horas, long tarifaHora, long total) {
         imprimir("");
@@ -165,6 +176,22 @@ public class Parqueadero {
 
     static String formatoMoneda(long valor) {
         return "$" + String.format("%,d", valor);
+    }
+
+    // ---------- Reportes ----------
+    static void reporteOcupacion() {
+        imprimir("");
+        imprimir("----- Reporte de ocupación -----");
+        imprimir("Celdas ocupadas: " + celdasOcupadas);
+        imprimir("Celdas libres  : " + celdasLibres);
+    }
+
+    static void reporteFinanciero() {
+        imprimir("");
+        imprimir("----- Reporte financiero -----");
+        imprimir("Recaudo carros : " + formatoMoneda(recaudoCarros));
+        imprimir("Recaudo motos  : " + formatoMoneda(recaudoMotos));
+        imprimir("Total general  : " + formatoMoneda(recaudoCarros + recaudoMotos));
     }
     static int celdaDisponible() {
         for (int i = 0; i < CAPACIDAD_TOTAL; i++) {
@@ -190,6 +217,7 @@ public class Parqueadero {
     static int leerCelda() {
         return leerOpcion("Número de celda (1-" + CAPACIDAD_TOTAL + "): ", 1, CAPACIDAD_TOTAL) - 1;
     }
+
     static String leerTipoVehiculo() {
         int opcion = leerOpcion("Tipo de vehículo (1. Carro, 2. Moto): ", 1, 2);
         return opcion == 1 ? CARRO : MOTO;
@@ -213,6 +241,7 @@ public class Parqueadero {
             return fecha;
         }
     }
+
     static boolean formatoFechaHoraValido(String texto) {
         if (texto.length() != 16
                 || texto.charAt(4) != '-'
@@ -233,6 +262,7 @@ public class Parqueadero {
                 && (hora != HORA_CIERRE || minuto <= 0)
                 && minuto >= 0 && minuto <= 59;
     }
+
     static int leerDigitos(String texto, int inicio, int cantidad) {
         int valor = 0;
         for (int i = inicio; i < inicio + cantidad; i++) {
